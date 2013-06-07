@@ -32,28 +32,33 @@ class Route(CodedAndNamed, UTF8EncodedStr):
         self.info = info
 
     def __unicode__(self):
-        return u"{className}({code}, {name}, {price}, {company})".format(
+        return u"{className}({code}, {name}, {price}, {company}, {info})".format(
             className=self.__class__.__name__,
             code=repr(self.code),
             name=repr(self.name),
             price=repr(self.price),
-            company=repr(self.company)
+            company=repr(self.company),
+            info=repr(self.info)
         )
 
 class Itinerary(CodedAndNamed, UTF8EncodedStr):
 
-    def __init__(self, code, name):
+    def __init__(self, code, name, coming=None, going=None):
         CodedAndNamed.__init__(self, code, name)
+        self.coming = coming
+        self.going = going
 
 class Trajectory(UTF8EncodedStr):
 
-    def __init__(self, places):
+    def __init__(self, name, places=[]):
+        self.name = name
         self.places = places
 
     def __unicode__(self):
-        return (
-            u"{className}("
-            ", ".join(str(place) for place in self.places)
+        return u"{className}({name}, {places})".format(
+            className=self.__class__.__name__,
+            name=repr(self.name),
+            places=", ".join(str(place) for place in self.places)
         )
 
 class Place(UTF8EncodedStr):

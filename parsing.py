@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-from entities import Route, Itinerary, Trajectory
+import re
+
+from entities import Route, Itinerary, Trajectory, Place
 
 def get_routes(soup):
     select = soup.find('select', {'name':'SelLinhas'})
@@ -24,6 +26,9 @@ def get_itineraries(soup):
 def get_active_itinerary(soup):
     select = soup.find('select', {'name':'SelNomeItinerario'})
     option = select.find('option', selected=True)
+    if not option:
+        return None
+
     code, name = int(option['value']),  option.text.strip()
 
     return Itinerary(code, name)
@@ -45,7 +50,11 @@ def get_company(soup):
 def get_info(soup):
     price_element = soup.find('b', text=re.compile(r'Tarifa\s*:'))
     table = price_element.parent.parent
-    cell = table.find_all('td')[2]
+    cells = table.find_all('td')
+    if len(cells) < 3: 
+        return None
+
+    cell = cells[2]
 
     return cel.text.strip()
 
@@ -64,7 +73,7 @@ def get_going_trajectory(soup):
             for location, _, municipality in cells
     ]
 
-    return Trajectory(places)
+    return Trajectory('TERMINAL/PONTO DE RETORNO', places)
 
 def get_coming_trajectory(soup):
     title_cell = soup.find('td', text=re.compile(r'PONTO DE RETORNO/TERMINAL'))
@@ -81,6 +90,6 @@ def get_coming_trajectory(soup):
             for location, _, municipality in cells
     ]
 
-    return Trajectory(places)
+    return Trajectory(r'PONTO DE RETORNO/TERMINAL', places)
 
 
